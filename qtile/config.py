@@ -72,7 +72,9 @@ keys = [
 
     # System commands
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "shift"], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod, "control"], "space", lazy.window.toggle_floating(), desc="Toggle Floating"),
     Key([], "XF86AudioPlay", lazy.spawn("playerctl play-pause"), desc="Play-pause audio"),
     Key([], "XF86AudioPause", lazy.spawn("playerctl play-pause"), desc="Play-pause audio"),
     Key([], "XF86AudioNext", lazy.spawn("playerctl next"), desc="Next track"),
@@ -150,6 +152,11 @@ layouts = [
     # layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
+    layout.Floating(
+        border_normal='#2a2a2a',
+        border_focus='#999999',
+        border_width=2,
+    ),
     Plasma(
         border_normal='#2a2a2a',
         border_focus='#999999',
@@ -297,15 +304,15 @@ screens = [
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Drag(["control", mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag(["control", mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
 follow_mouse_focus = False
-bring_front_click = False
+bring_front_click = True
 cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[ 
