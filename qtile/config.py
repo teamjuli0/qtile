@@ -24,26 +24,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import subprocess
-import os
-
 # install Plasma using the following pip command:
 # pip install --upgrade qtile-plasma
+import subprocess
+import os
 from plasma import Plasma
 from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
+from qtile_extras import widget as extrawidgets
 
 # autostart applications
+mod = "mod4"
 @hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser('~/.config/qtile/autostart.sh')
     subprocess.Popen([home])
 
-def notify():
-    qtile.cmd_spawn("notify-send hello world")
-
-mod = "mod4"
+def parse_window_name(text):
+    parsed_text = text.split(' - ')[-1].split(' — ')[-1]
+    
+    if parsed_text == 'Albert':
+        parsed_text = 'Search'
+    elif parsed_text == 'GNU Image Manipulation Program':
+        parsed_text = 'Gimp'
+    elif parsed_text == '':
+        parsed_text = 'Desktop'
+    elif parsed_text == 'Zoom Meeting':
+        parsed_text = 'Zoom'
+    elif 'Slack |' in text:
+        parsed_text = 'Slack'
+    return parsed_text
 
 keys = [
     # A list of available commands that can be bound to keys can be found
@@ -103,7 +114,9 @@ keys = [
     ])
 ]
 
-groups = [Group(f"{i+1}", label="") for i in range(8)]
+groups = [Group(i) for i in "123456789"]
+
+groups = [Group(f"{i+1}", label="") for i in range(9)]
 
 for i in groups:
     keys.extend(
@@ -152,19 +165,19 @@ layouts = [
     # layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
+    Plasma(
+        border_normal='#131313',
+        border_focus='#999999',
+        border_normal_fixed='#131313',
+        border_focus_fixed='#999999',
+        border_width=5,
+        border_width_single=0,
+        margin=7
+    ),
     layout.Floating(
         border_normal='#2a2a2a',
         border_focus='#999999',
         border_width=2,
-    ),
-    Plasma(
-        border_normal='#2a2a2a',
-        border_focus='#999999',
-        border_normal_fixed='#2a2a2a',
-        border_focus_fixed='#999999',
-        border_width=2,
-        border_width_single=0,
-        margin=7
     ),
 ]
 
@@ -174,11 +187,6 @@ widget_defaults = dict(
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
-
-
-def open_launcher():
-    qtile.cmd_spawn("rofi -show drun")
-
 
 screens = [
     Screen(
@@ -207,6 +215,51 @@ screens = [
                 widget.Image(
                     filename='~/.config/qtile/Assets/5.png',
                 ),
+                widget.WindowName(
+                    width=bar.CALCULATED,
+                    background='#4e4e4e',
+                    foreground='#c8d0d2',
+                    format='{name}',
+                    markup=True,
+                    font='JetBrains Mono Bold',
+                    parse_text=parse_window_name,
+                    empty_group_string='Desktop'
+                ),
+                extrawidgets.GlobalMenu(
+                    background='#4e4e4e',
+                    foreground='#c8d0d2',
+                    font='JetBrains Mono Bold',
+                    padding=10,
+                ),
+                widget.Image(
+                    filename='~/.config/qtile/Assets/4.png',                
+                ),
+                # widget.WindowName(
+                #     # background = '#4d687a',
+                #     # foreground = '#191919',
+                #     format = "{name}",
+                #     font='JetBrains Mono Bold',
+                #     empty_group_string = 'Desktop',
+                # ),
+                widget.Spacer(
+                    length=bar.STRETCH,
+                    # background="#4d687a",
+                ),
+                widget.Image(
+                    filename='~/.config/qtile/Assets/3.png',                
+                ),
+				widget.Spacer(
+                    length=5,
+                    background='#4e4e4e',
+                ),
+                # widget.Systray(
+                #     background='#4e4e4e',
+                #     icon_size=17,
+                # ),
+				# widget.Spacer(
+                #     length=1,
+                #     background='#4e4e4e',
+                # ),
                 widget.GroupBox(
                     fontsize=16,
                     borderwidth=3,
@@ -228,35 +281,6 @@ screens = [
                     disable_drag=True,
                  ),
                 widget.Image(
-                    filename='~/.config/qtile/Assets/4.png',                
-                ),
-                # widget.WindowName(
-                #     background = '#4d687a',
-                #     # foreground = '#191919',
-                #     format = "{name}",
-                #     font='JetBrains Mono Bold',
-                #     empty_group_string = 'Desktop',
-                # ),
-                widget.Spacer(
-                    length=bar.STRETCH,
-                    background="#4d687a",
-                ),
-                widget.Image(
-                    filename='~/.config/qtile/Assets/3.png',                
-                ),
-				widget.Spacer(
-                    length=5,
-                    background='#4e4e4e',
-                ),
-                widget.Systray(
-                    background='#4e4e4e',
-                    fontsize=2,
-                ),
-				# widget.Spacer(
-                #     length=1,
-                #     background='#4e4e4e',
-                # ),
-                widget.Image(
                     filename='~/.config/qtile/Assets/2.png',                
                     background='#363636',
                 ),
@@ -264,21 +288,19 @@ screens = [
                     length=15,
                     background='#363636',
                 ),
+                widget.ThermalZone(
+                    # font='JetBrains Mono Bold',
+                    # fontsize=12,
+                    # padding=10,
+                    font='JetBrains Mono Bold',
+                    background='#363636',
+                ),
                 widget.CheckUpdates(
                     no_update_string='No updates',
                     distro='Fedora',
                     font='JetBrains Mono Bold',
                     background='#363636',
-                ),
-                widget.TextBox(
-                    text=' ',
-                    background='#363636',
-                ),
-                widget.PulseVolume(
-                    font='JetBrains Mono Bold',
-                    fontsize=12,
-                    padding=10,
-                    background='#363636',
+                    fmt='   |   {}'
                 ),
                 widget.Image(
                     filename='~/.config/qtile/Assets/1.png',                
@@ -293,11 +315,12 @@ screens = [
                     length=18,
                     background='#131313',
                 ),
+
             ],
             30,
-            margin = [6, 6, 0, 6],
+            margin = [6, 6, 6, 6],
             # margin = [6, 6, 6, 4150],
-            # background = "#00000000"
+            background = "#00000000"
         ),
     ),
 ]
@@ -312,10 +335,10 @@ mouse = [
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
 follow_mouse_focus = False
-bring_front_click = True
+bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating(
-    float_rules=[ 
+    float_rules=[
         # Run the utility of `xprop` to see the wm class and name of an X client.
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
@@ -324,7 +347,8 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-    ]
+    ],
+    border_width=0
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
