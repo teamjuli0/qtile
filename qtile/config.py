@@ -170,7 +170,7 @@ layouts = [
         border_focus='#999999',
         border_normal_fixed='#131313',
         border_focus_fixed='#999999',
-        border_width=5,
+        border_width=0,
         border_width_single=0,
         margin=7
     ),
